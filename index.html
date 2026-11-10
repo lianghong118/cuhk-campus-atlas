@@ -1,0 +1,801 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="以中大校園地圖與校方紀錄為據的 DAPO 互動地圖原型。">
+<title>中大山城圖誌 · CUHK Campus Atlas</title>
+<style>
+:root{color-scheme:light;--ink:#232f27;--mute:#556257;--line:#d7d9ca;--paper:#f6f4ec;--card:#fcfaf2;--green:#214839;--gold:#ad631b;--sans:system-ui,"PingFang TC","Microsoft JhengHei",sans-serif;--serif:Georgia,"Songti TC","Noto Serif CJK TC",serif}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 var(--sans)}button,input,select{font:inherit}button,select{color:inherit}a{color:var(--green);text-underline-offset:3px}button{cursor:pointer}button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,canvas:focus-visible{outline:3px solid #b86c23;outline-offset:3px}button[aria-pressed="true"]{background:var(--green);color:#fff;border-color:var(--green)}
+header,main,footer{width:min(1460px,100%);margin:auto;padding-inline:clamp(16px,3.4vw,52px)}header{padding-top:22px}.folio{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #aeb7a7;padding-bottom:10px;color:var(--green);font-size:12px;font-weight:750;letter-spacing:.11em}.intro{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:18px 0}.eyebrow{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--mute);font-weight:780;margin:0}.intro h1{font-family:var(--serif);font-size:clamp(36px,5.4vw,69px);line-height:1.08;letter-spacing:.04em;margin:4px 0 6px;font-weight:800}.intro p:last-child{margin:0;color:var(--mute)}.modes{display:flex;gap:4px;padding:4px;background:#e7e9de;border:1px solid var(--line);border-radius:8px;flex-shrink:0}.modes button{border:0;background:transparent;padding:8px 14px;border-radius:5px;font-weight:720}.modes button[aria-pressed="true"]{background:var(--green);color:white}
+.atlas{display:grid;grid-template-columns:minmax(0,1fr) 310px;min-width:0;border:1px solid #aab6a5;border-radius:12px;overflow:hidden;background:var(--card);box-shadow:0 12px 32px #2331260e}.map{position:relative;background:radial-gradient(ellipse at 48% 38%,#f8f6eb,#e5eadf 90%);min-height:clamp(460px,58vw,650px);overflow:hidden}.map canvas{width:100%;height:100%;position:absolute;inset:0;touch-action:pan-y;cursor:grab}.map canvas.grabbing{cursor:grabbing}.map-top{position:absolute;left:16px;top:16px;pointer-events:none}.map-top span,.map-top strong,.map-key{display:block}.map-top strong{font:700 39px/1 var(--serif);color:var(--green);margin:4px 0}.map-top .eyebrow{font-size:10px}.tools{position:absolute;right:12px;top:13px;display:grid;grid-template-columns:repeat(2,38px);gap:5px}.tools button{background:#fcfaf3;border:1px solid #bac2b3;border-radius:5px;width:38px;height:36px;font-weight:700;font-size:16px}.tools button:hover{background:#e8eddf}.map-key{position:absolute;bottom:12px;left:13px;right:13px;font-size:11px;color:#435247;pointer-events:none}.map-key div{display:flex;flex-wrap:wrap;gap:12px}.map-key i{display:inline-block;width:9px;height:9px;margin-right:4px;border:1px solid #727e70;border-radius:2px}.map-key p{margin:4px 0 0}.compass{position:absolute;right:16px;bottom:42px;width:44px;text-align:center;pointer-events:none;color:var(--green);font-size:11px;font-weight:800}.compass b{display:block;font-size:22px;line-height:1;transform-origin:50% 55%}
+aside{display:flex;flex-direction:column;padding:21px 20px 17px;border-left:1px solid var(--line);min-width:0}aside h2{font:700 25px/1.25 var(--serif);margin:6px 0 9px}aside h3{font-size:15px;margin:0 0 5px}aside p{margin:0 0 12px}.hint,.fine{font-size:12px;color:var(--mute)}.cut{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}.picker{display:grid;gap:5px;font-size:12px;font-weight:700}.picker select{width:100%;padding:8px;background:#f4f3e9;border:1px solid #b9c2b2;border-radius:6px}.detail{min-height:122px}.detail .eyebrow{margin-bottom:4px}.detail a,#route-source{font-size:12px}.tag{display:inline-block;font-weight:730;font-size:11px;border-radius:4px;padding:2px 7px;background:#f1e4ce;color:#754011;margin-bottom:6px}.snapshot-source{font-size:12px;margin-top:auto;padding-top:12px}.route-summary{margin-top:12px;padding:10px 12px;background:#eef1e7;border:1px solid var(--line);border-radius:6px}.route-summary strong{display:block}.route-steps{margin:12px 0 9px;padding-left:26px;font-size:13px}.route-steps li{padding:4px 0}.route-steps li::marker{color:var(--gold);font-weight:800}.timeline{display:grid;grid-template-columns:150px 1fr;gap:22px;align-items:center;padding:14px 21px 12px;border-top:1px solid var(--line);grid-column:1/-1}.timeline button{padding:8px 11px;background:#e8ece1;border:1px solid #bdc6b7;border-radius:5px;color:var(--green);font-weight:730}.timeline input{display:block;width:100%;margin:6px 0 1px;accent-color:var(--green);cursor:pointer}.ticks{display:flex;justify-content:space-between;gap:3px}.ticks button{border:0;background:transparent;font-size:12px;padding:3px 5px;color:var(--mute)}.ticks button[aria-pressed="true"]{background:transparent;color:var(--green);font-weight:850;text-decoration:underline;text-underline-offset:4px}.timeline .eyebrow{margin:0 0 4px}.timeline .fine{display:block}.about{margin:15px 0 0;padding:11px 0 16px;border-top:1px solid var(--line);font-size:13px;color:var(--mute)}.about summary{cursor:pointer;font-weight:700;color:var(--green)}.about p{max-width:850px}.about a{margin-right:12px}footer{padding-bottom:20px}.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}[hidden]{display:none!important}
+@media(max-width:900px){.atlas{grid-template-columns:minmax(0,1fr) 265px}.map{min-height:500px}aside{padding:15px}.intro h1{font-size:clamp(35px,6.6vw,55px)}}
+@media(max-width:800px){.intro{align-items:start;flex-direction:column;margin:16px 0}.atlas{grid-template-columns:1fr}.map{min-height:390px}.timeline{grid-row:2;padding:10px 13px;gap:12px;grid-template-columns:103px 1fr}aside{border-left:0;border-top:1px solid var(--line)}.map-top strong{font-size:30px}.map-key{font-size:10px}.map-key div{gap:7px}.compass{bottom:48px}.detail{min-height:0}.tools{grid-template-columns:repeat(2,32px)}.tools button{width:32px;height:30px}.modes button{padding:6px 12px}}
+
+.atlas{grid-template-columns:minmax(0,1fr) minmax(300px,340px)}
+.filters{display:grid;gap:7px}.picker input{min-width:0;width:100%;padding:8px;background:#fffef8;border:1px solid #b9c2b2;border-radius:6px}
+.small-actions,.links{display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:12px}.small-actions button{padding:5px 8px;border:1px solid #b9c2b2;border-radius:4px;background:#eef1e7;font-weight:700}.small-actions button:disabled{opacity:.55;cursor:default}
+.evidence-list{margin:0 0 7px;padding-left:18px;font-size:12px}.evidence-list li{margin:4px 0}
+.timeline{grid-row:1;grid-template-columns:118px minmax(0,1fr);border-top:0;border-bottom:1px solid var(--line)}.ticks{overflow:auto;white-space:nowrap;scrollbar-width:thin}.ticks button{flex:0 0 auto}
+.changes{margin-top:23px;border-top:1px solid #aeb7a7;padding-top:14px}.section-top{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap}.section-top h2{font:750 26px/1.3 var(--serif);margin:3px 0 0}.section-top a{font-size:13px}
+.event-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,255px),1fr));gap:10px;align-items:start}.event-group,#coverage{border:1px solid var(--line);border-radius:6px;background:var(--card);padding:8px 11px}.event-group summary,#coverage summary{cursor:pointer;font-size:13px;font-weight:750;color:var(--green)}.event-group ul,.coverage-list ul{list-style:none;margin:6px 0 0;padding:0}.event-group li{padding:7px 0;border-top:1px solid var(--line);font-size:12px}.event-group p{margin:2px 0;color:var(--mute)}.event-kind{font-size:11px;font-weight:750}.event-group button,.coverage-list button{border:0;background:none;padding:0;color:var(--green);font-size:13px;font-weight:720;text-align:left;text-decoration:underline;text-underline-offset:2px}
+#coverage{margin-top:10px}.coverage-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,235px),1fr));gap:12px}.coverage-list h3{font-size:13px;margin:8px 0}.coverage-list li{line-height:1.5}
+@media(max-width:840px){.atlas{grid-template-columns:1fr}.timeline{grid-row:1;grid-template-columns:103px minmax(0,1fr)}aside{border-left:0;border-top:1px solid var(--line)}.map{min-height:430px}}
+@media(max-width:500px){.map{min-height:400px}.map-top .eyebrow{font-size:9px}.timeline{padding-inline:10px}.timeline button{font-size:12px}.ticks button{padding:3px}}
+#route-panel .picker{margin-top:9px}.related-routes{margin-top:10px}.timeline select{width:100%;margin-top:5px;padding:3px 2px;border:1px solid #bdc6b7;border-radius:5px;background:#fffef8;color:var(--green);font-size:12px}.campus-events{margin:0 0 10px}
+.project-credit{margin:5px 0 0;color:var(--green);font-size:13px;font-weight:650}
+</style>
+</head>
+<body>
+<header>
+  <div class="folio"><span>CUHK CAMPUS ATLAS</span><span>DAPO 2026/27 · 校園圖誌</span></div>
+  <div class="intro">
+    <div><p class="eyebrow">馬料水 · 香港中文大學</p><h1>中大山城圖誌</h1><p>從舊校圖到現況，逐棟追查校舍變遷。</p></div>
+    <nav class="modes" aria-label="地圖模式"><button id="history-mode" aria-pressed="true">校園圖層</button><button id="route-mode" aria-pressed="false">步行捷徑</button></nav>
+  </div>
+</header>
+<main>
+  <section class="atlas" aria-label="中大互動校園地圖">
+    <div class="map" id="map">
+      <canvas id="scene" tabindex="0" aria-label="校園立體模型。左右鍵旋轉，上下鍵調整俯角，可用右側清單選取建築。"></canvas>
+      <div class="map-top"><span id="map-type" class="eyebrow">01 / 校園歷史</span><strong id="map-year">現況</strong><span id="map-caption" class="eyebrow">官網名錄 · 地理模型</span></div>
+      <div class="tools" aria-label="視角控制">
+        <button type="button" data-action="left" aria-label="向左旋轉" title="向左旋轉">↶</button><button type="button" data-action="right" aria-label="向右旋轉" title="向右旋轉">↷</button>
+        <button type="button" data-action="in" aria-label="放大" title="放大">＋</button><button type="button" data-action="out" aria-label="縮小" title="縮小">−</button>
+        <button type="button" data-action="top" aria-label="俯視" title="俯視">▤</button><button type="button" data-action="reset" aria-label="重置視角" title="重置視角">⌂</button>
+      </div>
+      <div class="compass" aria-hidden="true"><b id="north">▲</b>北</div>
+      <div class="map-key">
+        <div id="history-key"><span><i style="background:#d8cbb0"></i>已有記錄</span><span><i style="background:#d19346"></i>首見／完工／翻新</span><span><i style="background:#b17e98"></i>施工／規劃</span><span><i style="background:#6c867c;border-radius:100%"></i>位置點</span></div>
+        <div id="route-key" hidden><span><i style="background:#c27226"></i>示意步行段</span><span><i style="background:#176558"></i>樓層轉換</span><span id="branch-key" hidden>虛線 · 支路示意</span></div>
+        <p>拖動旋轉 · Shift＋拖動平移 · 地政總署／CSDI · Mapzen · © OpenStreetMap</p>
+      </div>
+    </div>
+    <aside>
+      <section id="history-panel">
+        <p class="eyebrow" id="history-kicker">年代與證據</p>
+        <h2 id="history-title">校園圖版</h2>
+        <p class="hint" id="history-text"></p>
+        <div class="cut filters">
+          <label class="picker">搜尋樓宇<input id="building-search" type="search" placeholder="中文、English 或樓宇編號"></label>
+          <label class="picker">分區<select id="area-picker"></select></label>
+          <label class="picker">選擇地標<select id="building-picker"></select></label>
+          <div class="small-actions"><button id="focus-building" type="button">定位並放大</button><a href="#changes">查看這期變化 ↓</a></div>
+        </div>
+        <div class="detail cut" aria-live="polite">
+          <p class="eyebrow">地標紀錄</p><h3 id="building-name"></h3><span class="tag" id="building-tag"></span>
+          <p class="hint" id="building-note"></p>
+          <ul id="building-events" class="evidence-list"></ul>
+          <div class="links"><a id="building-source" target="_blank" rel="noopener">查看依據 ↗</a><a id="street-view" target="_blank" rel="noopener">附近街景 ↗</a><a id="google-map" target="_blank" rel="noopener">Google 地圖 ↗</a></div>
+        </div>
+      </section>
+      <section id="route-panel" hidden>
+        <p class="eyebrow">02 / 樓層連通</p><h2>步行捷徑</h2>
+        <p class="hint">從 3 條校方示範及 26 條社群捷徑選擇，查看步行方向及樓層轉換。</p>
+        <label class="picker">來源與方向<select id="route-group"></select></label>
+        <label class="picker">選擇路線<select id="route-picker"></select></label>
+        <div class="route-summary"><strong id="route-title"></strong><span class="fine" id="route-note"></span></div>
+        <ol id="route-steps" class="route-steps"></ol>
+        <a id="route-source" target="_blank" rel="noopener">查看原路線 ↗</a>
+        <div id="related-routes" class="small-actions related-routes"></div>
+        <p class="fine cut">地圖連線按地標示意，支路、出入口、開放時段及電梯狀態請在出發前核對。</p>
+      </section>
+      <div class="snapshot-source"><a id="snapshot-source" target="_blank" rel="noopener"></a></div>
+    </aside>
+    <div class="timeline" id="timeline">
+      <div><p class="eyebrow">1963 至今</p><button id="play" type="button">▶ 播放變遷</button><label for="year-picker" class="sr">跳到有證據的年代</label><select id="year-picker"></select></div>
+      <div><label for="year-control" class="sr">選擇歷史節點</label><input type="range" id="year-control" min="0" step="1" value="0" aria-valuetext="現況">
+        <div class="ticks" id="ticks" aria-label="選擇圖版或文獻節點"></div>
+      </div>
+    </div>
+  </section>
+  <section class="changes" id="changes" aria-labelledby="changes-title">
+    <div class="section-top"><div><p class="eyebrow">TIMELINE RECORD</p><h2 id="changes-title">這期變了甚麼</h2></div><a href="campus-inventory.csv" download>下載樓宇與來源 CSV ↓</a></div>
+    <p class="hint" id="changes-note"></p><div id="campus-events" class="event-grid campus-events"></div><div id="change-events" class="event-grid"></div>
+    <details id="coverage"><summary id="coverage-title"></summary><div id="coverage-list" class="coverage-list"></div></details>
+  </section>
+  <details class="about">
+    <summary>來源、地理精度與覆蓋範圍</summary>
+    <p>名錄以中大官網校圖與校園發展處公開名錄的聯集為準，另含圖例地標和年報項目。校圖圖號可包含多座樓，也可標示同一組建築的不同部分。2019 以圖例逐號核對，其他節點按校曆、年報、書院紀錄和可辨識圖版整理。早期覆蓋按可定位證據逐步補齊。地形沿用現況，多數樓形以現況輪廓作歷史對照，竹苑、松苑、柏苑按舊圖約略對位。校圖首見、落成、啟用與翻新分別記錄。</p>
+    <p>樓宇輪廓與高度來源為香港特別行政區政府地政總署及空間數據共享平台（CSDI）。資料知識產權屬政府及相關機構，按 CSDI 使用條款提供。地形取樣自 Mapzen Terrain Tiles，顯示作輕度垂直誇張。道路使用地政總署道路中心線及中大官方校巴路段。未圓湖、東鐵軌道，以及第39區教學科研大樓和伍宜孫新宿舍工地參考 OpenStreetMap。運動場和捷徑的幾何仍為示意。街景連結在 Google Maps 開啟附近視角，影像可用性和拍攝日期以 Google 顯示為準。</p>
+    <a href="https://www.cuhk.edu.hk/english/campus/cuhk-campus-map.html" target="_blank" rel="noopener">中大官網校圖 ↗</a>
+    <a href="https://cuhk.edu.hk/cdo/bldgdir.htm" target="_blank" rel="noopener">校園發展處名錄 ↗</a>
+    <a href="https://www.iso.cuhk.edu.hk/english/publications/annual-report/index.aspx" target="_blank" rel="noopener">中大年報 ↗</a>
+    <a href="https://portal.csdi.gov.hk/csdi-webpage/dataset/landsd_rcd_1637211194312_35158" target="_blank" rel="noopener">CSDI 建築物 ↗</a>
+    <a href="https://data.gov.hk/en-data/dataset/hk-landsd-openmap-road-centreline" target="_blank" rel="noopener">地政總署道路中心線 ↗</a>
+    <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors · ODbL ↗</a>
+    <a href="https://portal.csdi.gov.hk/csdi-webpage/doc/TNC" target="_blank" rel="noopener">CSDI 使用條款 ↗</a>
+    <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">Mapzen 高程 ↗</a>
+    <a href="https://github.com/tilezen/joerd/blob/master/docs/attribution.md" target="_blank" rel="noopener">高程來源及授權 ↗</a>
+    <a href="https://repository.lib.cuhk.edu.hk/en/collection/archive/cmap" target="_blank" rel="noopener">校園地圖館藏 ↗</a>
+    <a href="https://repository.lib.cuhk.edu.hk/en/item/cuhk-2185444" target="_blank" rel="noopener">2019 館藏條目 ↗</a>
+    <a href="https://cu-uar.blogspot.com/2020/08/blog-post.html" target="_blank" rel="noopener">大學檔案校園今昔 ↗</a>
+    <a href="https://repository.lib.cuhk.edu.hk/en/item/cuhk-2183133" target="_blank" rel="noopener">1963 校園規劃館藏 ↗</a>
+    <a href="https://cuhk-shortcut-finder.lovable.app/" target="_blank" rel="noopener">社群捷徑 · 港中大捷徑／一只小台 ↗</a>
+  </details>
+</main>
+<footer>
+  <p class="eyebrow">CUHK CAMPUS ATLAS · 研究與展示</p>
+  <p class="project-credit" lang="en">Conceived and built by Alan WANG and Cindy CHEN (CUHK)</p>
+</footer>
+<script src="atlas-data.js"></script>
+<script src="osm-context.js"></script>
+<script src="shortcut-data.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const officialMap='https://www.cuhk.edu.hk/english/campus/cuhk-campus-map.html';
+const directory='https://cuhk.edu.hk/cdo/bldgdir.htm';
+const map19='https://www.cuhk.edu.hk/lifesciences/bche50/Campus-Map-YIA-LT2.pdf';
+const newShortcut='https://www.iso.cuhk.edu.hk/english/publications/newsletter/article.aspx?articleid=55014';
+const walking='https://www.scu.cuhk.edu.hk/wp-content/uploads/useful-information/Campus-Map-Walking-Routes-Aug-2025.pdf';
+const snapshots=atlasData.snapshots.map(([year,label,caption,text,source])=>({year,label,caption,text,source}));
+const buildings=atlasData.buildings;
+const byId=new Map(buildings.map(b=>[b.id,b]));
+const statusNames={visible:'圖版或文獻可見',construction:'施工有記錄',completed:'已有落成紀錄',planned:'設計／規劃',historic:'舊址 · 重建',legacy:'歷史校舍',removed:'已拆卸／舊址',registry:'名錄補錄 · 年代待核'};
+const [mapWidth,mapHeight]=atlasData.bounds;
+const namedLabels=new Set(['H3','H9','H25','C39A','E10','H5','U9','N12','S7','XMTRW','A8','XLAKE']);
+const routes = [
+  {name:'大學站 → 邵逸夫夫人樓',detail:'校方 2012 年公布的中央校園捷徑',url:newShortcut,
+   steps:['大學站 → 康本國際學術園地下','經康本國際學術園上行，接伍何曼原樓','途經利樹培堂、何善衡夫人宿舍及苗圃徑','經蒙民偉工程學大樓接何善衡工程學大樓 5 樓平台','沿平台方向到邵逸夫夫人樓']},
+  {name:'大學圖書館 → 聯合書院水塔',detail:'校方路線 D · 約 5 分鐘（來源估計）',url:walking,
+   steps:['由大學圖書館走向李兆基樓','乘快捷電梯到 3 樓行人天橋','穿過天橋，步行至聯合書院水塔']},
+  {name:'范克廉樓 → 大學圖書館',detail:'校方路線 C · 約 5 分鐘（來源估計）',url:walking,vertical:[2,3],
+   steps:['由范克廉樓前往大學行政樓','沿行政樓階梯上行','抵達大學圖書館及林蔭大道']}
+];
+const officialGroup='校方示範';
+routes.forEach((route,i)=>Object.assign(route,{nodes:atlasData.routeNodes[i],group:officialGroup}));
+const routeAnchors=new Map(buildings.filter(b=>b.point&&!b.legacyPeriod).map(b=>[b.code,b.point]));
+const branchSegments={
+  bb1:['westShaw','westChu'],cb1:['westShaw','westChu'],tba1:['westShaw','westChu'],
+  bb2:['wysLift'],cb2:['wysLift'],tba2:['wysLift'],kc2:['-wysLift'],kt2:['-wysLift'],
+  kb1:['-westShaw'],kc1:['-westShaw'],kt1:['-westShaw']
+};
+function shortcutNodes(segmentNames) {
+  const points=segmentNames.flatMap(name=>{
+    const reversed=name.startsWith('-');
+    const [key,offset='0']=name.replace(/^-/,'').split('@');
+    const anchors=communityShortcuts.segments[key].slice(Number(offset));
+    return (reversed?anchors.reverse():anchors).map(anchor=>{
+      const [code,lift]=Array.isArray(anchor)?anchor:[anchor,2];
+      return [...routeAnchors.get(code),lift];
+    });
+  });
+  return points.filter((p,i)=>!i||p.some((value,j)=>value!==points[i-1][j]));
+}
+for(const [id,group,name,segments,steps,related=[]] of communityShortcuts.routes) {
+  routes.push({group,name:group+' · '+name,steps,related,nodes:shortcutNodes(segments),
+    branches:(branchSegments[id]||[]).map(segment=>shortcutNodes([segment])),
+    detail:'社群捷徑 · '+communityShortcuts.credit,url:communityShortcuts.url});
+}
+const canvas = $('scene');
+const ctx = canvas.getContext('2d');
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const startView = {angle:-0.19,tilt:0.82,zoom:1,x:mapWidth/2,y:mapHeight/2};
+let view = {...startView}, width = 0, height = 0;
+const latest=snapshots.length-1;
+let active=latest, mode='history', chosen='b5', routeIndex=0, playing=false, playTimer;
+let frame = 0, lastTime = 0, drag = null, hitFaces = [];
+const growth = new Map();
+const clamp = (n, lo, hi) => Math.max(lo,Math.min(hi,n));
+const grid=atlasData.grid;
+function ground(x,y) {
+  const u=clamp(x/mapWidth*(grid.width-1),0,grid.width-1);
+  const v=clamp(y/mapHeight*(grid.height-1),0,grid.height-1);
+  const i=Math.min(Math.floor(u),grid.width-2), j=Math.min(Math.floor(v),grid.height-2);
+  const a=u-i,b=v-j,k=j*grid.width+i;
+  const near=grid.data[k]*(1-a)+grid.data[k+1]*a;
+  const far=grid.data[k+grid.width]*(1-a)+grid.data[k+grid.width+1]*a;
+  return 1.15*(near*(1-b)+far*b);
+}
+const mesh=[];
+const bounds={left:0,top:0,right:mapWidth,bottom:mapHeight};
+const dx=mapWidth/64,dy=mapHeight/69;
+for(let j=0;j<69;j++){
+  for(let i=0;i<64;i++){
+    const x=i*dx,y=j*dy;
+    const quad=[[x,y],[x+dx,y],[x+dx,y+dy],[x,y+dy]].map(([a,b])=>[a,b,ground(a,b)]);
+    const z=(quad[0][2]+quad[2][2])/2;
+    const slope=(quad[0][2]-quad[1][2]+quad[3][2]-quad[2][2])*.22;
+    const light=clamp(88-z/10+slope,57,89);
+    const fill=z<3?'#c8dbd7':'hsl(86 23% '+light+'%)';
+    mesh.push({quad,fill,x:x+dx/2,y:y+dy/2});
+  }
+}
+const onGround = (points, offset=1) => points.map(([x,y])=>[x,y,ground(x,y)+offset]);
+function densify(points, step=13) {
+  const samples=[points[0]];
+  for(let i=1;i<points.length;i++) {
+    const a=points[i-1], b=points[i], count=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/step));
+    for(let j=1;j<=count;j++) samples.push([a[0]+(b[0]-a[0])*j/count,a[1]+(b[1]-a[1])*j/count]);
+  }
+  return samples;
+}
+const roads=atlasData.roads.map(line=>onGround(densify(line),1.6));
+const lake=onGround(osmContext.lake,3);
+const field=onGround(atlasData.field,2);
+const railway=osmContext.railway.map(line=>onGround(line,2));
+const contours=[];
+for(const level of [25,50,75,100,125,150,175,200,225]) {
+  const segments=[];
+  for(const tile of mesh) {
+    const points=[];
+    for(let i=0;i<4;i++) {
+      const a=tile.quad[i],b=tile.quad[(i+1)%4];
+      if((a[2]<level)===(b[2]<level))continue;
+      const t=(level-a[2])/(b[2]-a[2]);
+      points.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,level+0.5]);
+    }
+    if(points.length>=2)segments.push([points[0],points[1]]);
+    if(points.length===4)segments.push([points[2],points[3]]);
+  }
+  contours.push(...segments);
+}
+const centers=buildings.filter(b=>b.point).map(b=>b.point);
+let rng=3217;
+function rand(){rng=(Math.imul(rng,1664525)+1013904223)>>>0;return rng/4294967296;}
+const trees=[];
+for(let i=0;i<1050;i++){
+  const x=20+rand()*(mapWidth-40),y=20+rand()*(mapHeight-40),z=ground(x,y);
+  if(z<23 || centers.some(p=>Math.abs(p[0]-x)<30&&Math.abs(p[1]-y)<30))continue;
+  if(roads.some(road=>road.some(p=>Math.abs(p[0]-x)<12&&Math.abs(p[1]-y)<12)))continue;
+  trees.push({x,y,z,h:4+rand()*9,shade:rand()>.5?'#718762':'#87996d'});
+}
+function state(b,index=active){return b.states[snapshots[index].year];}
+function visible(b){return Boolean(state(b,mode==='route'?latest:active));}
+function firstShown(b){return snapshots.findIndex(s=>b.states[s.year]);}
+for(const b of buildings){
+  b.figureShapes=b.figures.map(([ring,h,base])=>{
+    const center=ring.reduce(([x,y],p)=>[x+p[0]/ring.length,y+p[1]/ring.length],[0,0]);
+    const g=ground(...center);
+    const z=base!=null&&Math.abs(base*1.15-g)<22?base*1.15:g;
+    return {ring,h:h??9,z,center};
+  });
+}
+function scenePointFactory() {
+  const c=Math.cos(view.angle),s=Math.sin(view.angle);
+  const st=Math.sin(view.tilt),ct=Math.cos(view.tilt);
+  const spanX=mapWidth*Math.abs(c)+mapHeight*Math.abs(s);
+  const spanY=(mapWidth*Math.abs(s)+mapHeight*Math.abs(c))*st+220*ct;
+  const scale=Math.min((width-28)/spanX,(height-63)/spanY)*view.zoom;
+  const pivotX=view.x,pivotY=view.y;
+  const focusZ=view.zoom>1.2?ground(pivotX,pivotY)*.62:0;
+  function depth(x,y,z=0){return ((x-pivotX)*s+(y-pivotY)*c)*ct+z*st;}
+  function project([x,y,z]) {
+    const along=(x-pivotX)*s+(y-pivotY)*c;
+    return [width/2+((x-pivotX)*c-(y-pivotY)*s)*scale,
+      height*.54+(along*st-(z-focusZ)*ct)*scale];
+  }
+  return {project,depth,scale};
+}
+function path(points,close=false) {
+  ctx.beginPath();
+  for(let i=0;i<points.length;i++) {
+    const [x,y]=points[i];
+    if(i===0)ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  }
+  if(close)ctx.closePath();
+}
+function polygon(points,fill,stroke,width=1) {
+  path(points,true);
+  ctx.fillStyle=fill;ctx.fill();
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.stroke();}
+}
+function line(points,stroke,width,dash=[]) {
+  path(points);ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.setLineDash(dash);ctx.stroke();ctx.setLineDash([]);
+}
+function area(points) {
+  return points.reduce((n,p,i)=>{
+    const q=points[(i+1)%points.length];
+    return n+p[0]*q[1]-p[1]*q[0];
+  },0);
+}
+function label(p,text,busy,selected=false) {
+  ctx.font=selected?'750 12px system-ui':'650 11px system-ui';
+  if(text.length>20)text=text.slice(0,19)+'…';
+  const w=ctx.measureText(text).width+12, h=19;
+  const x=clamp(p[0]-w/2,2,width-w-2),y=p[1]-h-5;
+  if(p[0]<0||p[0]>width||y<66||y>height-50)return;
+  if(!selected && busy.some(([bx,by,bw,bh])=>x<bx+bw+3&&x+w+3>bx&&y<by+bh+3&&y+h+3>by))return;
+  busy.push([x,y,w,h]);
+  ctx.fillStyle=selected?'#214839':'#fcfaf2ee';
+  ctx.beginPath();ctx.roundRect(x,y,w,h,4);ctx.fill();
+  ctx.fillStyle=selected?'#fff':'#243c2d';
+  ctx.textBaseline='middle';ctx.textAlign='center';ctx.fillText(text,x+w/2,y+h/2+0.5);
+}
+function draw(time) {
+  frame=0;
+  if(!width||!height)return;
+  const {project,depth,scale}=scenePointFactory();
+  const elapsed=lastTime?Math.min(time-lastTime,60):17;
+  lastTime=time;
+  ctx.clearRect(0,0,width,height);
+  ctx.lineJoin='round';ctx.lineCap='round';
+  const corners=[[bounds.left,bounds.top],[bounds.right,bounds.top],[bounds.right,bounds.bottom],[bounds.left,bounds.bottom]];
+  const base=corners.map(([x,y])=>project([x,y,-24]));
+  ctx.save();ctx.shadowColor='#2e3e2b40';ctx.shadowBlur=22;ctx.shadowOffsetY=12;
+  polygon(base,'#9aa98a');ctx.restore();
+  const edges=corners.map((a,i)=>{
+    const b=corners[(i+1)%4];
+    const top=onGround(densify([a,b]),0);
+    return {order:depth((a[0]+b[0])/2,(a[1]+b[1])/2),points:[...top.map(project),base[(i+1)%4],base[i]]};
+  }).sort((a,b)=>a.order-b.order);
+  for(const edge of edges) polygon(edge.points,edge.order>0?'#a1ac91':'#b2bda3','#8f9d83',.6);
+  for(const tile of mesh.sort((a,b)=>depth(a.x,a.y)-depth(b.x,b.y))) {
+    polygon(tile.quad.map(project),tile.fill,tile.fill,.72);
+  }
+  for(const seg of contours)line(seg.map(project),'#5c76552d',.8);
+  const currentYear=snapshots[mode==='route'?latest:active].year;
+  if(currentYear>=1977)polygon(field.map(project),'#a1b98d','#edeee0',1);
+  if(currentYear>=1998)polygon(lake.map(project),'#87b3ab','#e6ede2',1.2);
+  for(const segment of railway)line(segment.map(project),'#52695e',Math.max(.8,scale*2.5));
+  if(currentYear>=2005) {
+    for(const road of roads)line(road.map(project),'#a8ae98',Math.max(.9,scale*8));
+    for(const road of roads)line(road.map(project),'#f7f0dc',Math.max(.65,scale*5.5));
+  }
+  const renderItems=[], labels=[];
+  for(const tree of trees) {
+    const p=project([tree.x,tree.y,tree.z+tree.h]);
+    renderItems.push({tree,p,order:depth(tree.x,tree.y,tree.z+tree.h*.4)});
+  }
+  let animate=false;
+  const pins=[];
+  for(const b of buildings) {
+    if(!b.point)continue;
+    const shown=visible(b),target=shown?1:0;
+    const prev=growth.get(b.id)??target;
+    const factor=reducedMotion?target:prev+Math.sign(target-prev)*Math.min(Math.abs(target-prev),elapsed/390);
+    growth.set(b.id,factor);
+    animate ||= Math.abs(factor-target)>.0001;
+    if(factor<=0)continue;
+    const st=state(b,mode==='route'?latest:active);
+    const projectSite=st==='construction'||st==='planned';
+    const historic=st==='historic'||st==='removed';
+    const selected=mode==='history'&&b.id===chosen;
+    const changed=active>0&&b.evidence.some(([year,kind])=>year>snapshots[active-1].year&&year<=currentYear&&/落成|翻新|完成|啟用/.test(kind)&&!/預計/.test(kind));
+    const fresh=mode==='history'&&active>0&&(firstShown(b)===active||changed)&&st!=='registry';
+    const palette=selected?['#53806d','#346350','#244c3c']:projectSite?['#b188a4','#916d88','#79556e']:
+      fresh?['#dfa858','#bd884f','#9a692f']:['#e9dcc1','#c1ad8b','#a99577'];
+    const stroke=selected?'#214839':'#64553f75';
+    let topZ=ground(...b.point)+3;
+    if(!b.figureShapes.length||historic||st==='planned') {
+      const p=project([...b.point,topZ]);
+      if(osmContext.projectOutlines[b.code]&&projectSite) {
+        const outline=onGround(osmContext.projectOutlines[b.code],3).map(project);
+        renderItems.push({b,points:outline,fill:'#a7819f52',stroke:'#805d78',order:depth(...b.point,topZ)});
+      }
+      pins.push({b,p,selected,fill:historic?'#817b70':projectSite?'#98688b':fresh?'#b47631':'#587c70'});
+    } else for(const {ring,h,z,center} of b.figureShapes) {
+      const roofZ=z+h*(projectSite?.22:1)*factor;
+      topZ=Math.max(topZ,roofZ);
+      const bottom=ring.map(([x,y])=>project([x,y,z-1]));
+      const roof=ring.map(([x,y])=>project([x,y,roofZ]));
+      for(let i=0;i<roof.length;i++){
+        const j=(i+1)%roof.length;
+        const points=[bottom[i],bottom[j],roof[j],roof[i]];
+        if(area(points)<0)continue;
+        const [x,y]=ring[i],[xx,yy]=ring[j];
+        renderItems.push({b,points,fill:palette[Math.abs(xx-x)>Math.abs(yy-y)?1:2],stroke,order:depth((x+xx)/2,(y+yy)/2,(roofZ+z)/2)});
+      }
+      renderItems.push({b,points:roof,fill:palette[0],stroke,order:depth(...center,roofZ)});
+    }
+    if(shown&&mode==='history'&&(selected||currentYear<=1967||namedLabels.has(b.code)||view.zoom>2.25)){
+      labels.push({p:project([...b.point,topZ]),text:b.name,selected});
+    }
+  }
+  hitFaces=[];
+  renderItems.sort((a,b)=>a.order-b.order);
+  for(const item of renderItems){
+    if(item.tree){
+      const r=Math.max(1,item.tree.h*scale*.28);
+      ctx.fillStyle=item.tree.shade;
+      ctx.beginPath();ctx.ellipse(item.p[0],item.p[1],r,r*.8,0,0,Math.PI*2);ctx.fill();
+    }else{
+      polygon(item.points,item.fill,item.stroke,.65);
+      if(visible(item.b))hitFaces.push(item);
+    }
+  }
+  for(const {b,p,selected,fill} of pins){
+    if(!visible(b))continue;
+    const [x,y]=p,r=selected?6:3;
+    dot(p,r,selected?'#214839':fill);
+    hitFaces.push({b,points:[[x-r-1,y-r-1],[x+r+1,y-r-1],[x+r+1,y+r+1],[x-r-1,y+r+1]]});
+  }
+  if(mode==='route') {
+    const route=routes[routeIndex];
+    const projectRoute=nodes=>nodes.map(([x,y,lift])=>project([x,y,ground(x,y)+lift]));
+    ctx.save();
+    ctx.setLineDash([5,5]);
+    for(const branch of route.branches||[])line(projectRoute(branch),'#a8642a',3);
+    ctx.restore();
+    const routePoints=projectRoute(route.nodes);
+    line(routePoints,'#fff9e9',7);
+    line(routePoints,'#b45f17',4);
+    for(let i=1;i<route.nodes.length;i++) {
+      const a=route.nodes[i-1], b=route.nodes[i];
+      if((a[0]===b[0]&&a[1]===b[1])||route.vertical?.includes(i)) {
+        line(routePoints.slice(i-1,i+1),'#176558',5);
+        dot(routePoints[i],4,'#176558');
+      }
+    }
+    const begin=routePoints[0],end=routePoints.at(-1);
+    dot(begin,6,'#214839');dot(end,6,'#b45f17');
+    const busy=[];
+    label(begin,'起點',busy,true);
+    label(end,'終點',busy,true);
+  } else {
+    const busy=[];
+    for(const b of labels.sort((a,b)=>Number(b.selected)-Number(a.selected)))label(b.p,b.text,busy,b.selected);
+    if(view.zoom<1.35)for(const [name,p] of atlasData.areaLabels) {
+      if(currentYear>=(atlasData.areaFirst[name]??2005))label(project([...p,ground(...p)+16]),name,busy);
+    }
+  }
+  $('north').style.transform='rotate('+(-view.angle)+'rad)';
+  if(animate)redraw();
+}
+function dot([x,y],r,fill) {
+  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
+  ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle='#fff9ea';ctx.lineWidth=1.6;ctx.stroke();
+}
+function redraw() {if(!frame)frame=requestAnimationFrame(draw);}
+const collator=new Intl.Collator('zh-Hant',{numeric:true});
+const ordered=[...buildings].sort((a,b)=>collator.compare(a.code,b.code)||collator.compare(a.name,b.name));
+const areaName=b=>atlasData.areas[b.area]||'其他校園設施';
+const labelFor=b=>b.code.startsWith('X')?b.name:b.code+' · '+b.name;
+const section=(tag,value,css)=>{const el=document.createElement(tag);el.textContent=value;if(css)el.className=css;return el;};
+function external(label,url) {
+  const a=section('a',label);
+  a.href=url;a.target='_blank';a.rel='noopener';
+  return a;
+}
+const ticks=snapshots.map((snapshot,i)=>{
+  const button=section('button',snapshot.label);
+  button.type='button';
+  button.title=snapshot.year+' · '+snapshot.caption;
+  button.dataset.year=i;
+  button.addEventListener('click',()=>{stop();setYear(i);});
+  return button;
+});
+const tickYears=new Set([1963,1969,1973,1981,1989,1998,2005,2009,2015,2019,2025,2026]);
+$('ticks').replaceChildren(...ticks.filter((_,i)=>tickYears.has(snapshots[i].year)));
+$('year-picker').replaceChildren(...snapshots.map(({label,caption},i)=>new Option(label+' · '+caption,i)));
+$('area-picker').replaceChildren(new Option('所有分區',''),...Object.entries(atlasData.areas).map(([id,name])=>new Option(name,id)));
+$('year-control').max=latest;
+function matchingBuildings() {
+  const query=$('building-search').value.trim().toLowerCase();
+  const area=$('area-picker').value;
+  return ordered.filter(b=>visible(b)&&(!area||b.area===area)&&
+    [b.code,b.name,b.en,...(b.aliases||[])].join(' ').toLowerCase().includes(query));
+}
+function updatePicker() {
+  const matches=matchingBuildings();
+  if(!matches.some(b=>b.id===chosen))chosen=matches.find(b=>b.id==='b5')?.id||matches[0]?.id||null;
+  const select=$('building-picker');
+  select.replaceChildren(...matches.map(b=>new Option(labelFor(b)+(b.point?'':' · 待定位'),b.id)));
+  if(chosen)select.value=chosen;
+  else select.append(new Option('此節點沒有相符的記錄',''));
+  select.disabled=!matches.length;
+  updateBuilding();
+}
+function updateBuilding() {
+  const b=byId.get(chosen);
+  $('focus-building').disabled=!b?.point;
+  $('building-events').replaceChildren();
+  $('building-source').hidden=!b;
+  $('street-view').hidden=!b?.point;
+  $('google-map').hidden=!b?.point;
+  $('building-tag').hidden=!b;
+  if(!b) {
+    $('building-name').textContent='沒有相符樓宇';
+    $('building-note').textContent='試用其他名稱、樓宇編號，或切換至現況查看完整名錄。';
+    redraw();
+    return;
+  }
+  const st=state(b);
+  $('building-name').textContent=b.name;
+  $('building-tag').textContent=areaName(b)+' · '+statusNames[st];
+  const geometry=b.figures.length?(b.legacyPeriod?b.locationSource:'地政總署／CSDI 現況輪廓'):b.point?b.locationSource+' · 位置點':'待定位';
+  const detail=[b.en,geometry,b.legend.length?'2019 圖號 '+b.legend.join('、'):'',b.note].filter(Boolean);
+  $('building-note').textContent=detail.join('。');
+  const evidence=b.evidence.filter(([year])=>year<=snapshots[active].year);
+  $('building-events').replaceChildren(...evidence.slice(-3).reverse().map(([year,kind,note,url,date])=>{
+    const li=section('li',(date||year)+' '+kind+' · '+note+' ');
+    li.append(external('來源 ↗',url));
+    return li;
+  }));
+  const observation=b.observations.find(([year])=>year<=snapshots[active].year);
+  if(observation) {
+    const li=section('li',observation[0]+' 校圖可辨 ');
+    li.append(external('校曆圖版 ↗',observation[1]));
+    $('building-events').append(li);
+  }
+  $('building-source').href=evidence.at(-1)?.[3]||observation?.[1]||(b.legend.length&&snapshots[active].year>=2019&&active!==latest?map19:b.source==='directory'?directory:active===latest?officialMap:snapshots[active].source);
+  if(b.point){
+    const {left,north,mx,my}=atlasData.transform;
+    const lat=(north-b.point[1]/my).toFixed(6),lon=(left+b.point[0]/mx).toFixed(6);
+    $('street-view').href='https://www.google.com/maps/@?api=1&map_action=pano&viewpoint='+lat+','+lon;
+    $('google-map').href='https://www.google.com/maps/search/?api=1&query='+lat+','+lon;
+  }
+  redraw();
+}
+function focusBuilding(b=byId.get(chosen)) {
+  if(!b?.point)return;
+  [view.x,view.y]=b.point;
+  view.zoom=3.15;
+  redraw();
+}
+function showBuilding(b,focus=false,scroll=false) {
+  chosen=b.id;
+  $('building-search').value='';
+  $('area-picker').value='';
+  updatePicker();
+  if(focus)focusBuilding(b);
+  if(scroll)$('building-name').scrollIntoView({block:'nearest'});
+}
+function buildingButton(b) {
+  const button=section('button',labelFor(b));
+  button.type='button';
+  button.addEventListener('click',()=>showBuilding(b,Boolean(b.point),true));
+  return button;
+}
+function renderChanges() {
+  const now=snapshots[active];
+  const previous=snapshots[active-1];
+  const eligible=ordered.filter(b=>state(b));
+  const records=[];
+  for(const b of ordered) {
+    const st=state(b),old=previous&&state(b,active-1);
+    const events=b.evidence.filter(([year])=>year<=now.year&&(!previous||year>previous.year));
+    for(const [year,kind,note,url] of events)records.push({b,kind,year,note,url});
+    if(!events.length&&st&&st!==old){
+      const fromDirectory=st==='registry';
+      const kind=fromDirectory?'名錄補錄':st==='historic'?'舊址／重建':previous?'本期來源可辨':'基準圖版';
+      const note=fromDirectory?'官網或校園發展處名錄中可查，建成年代待核。':
+        st==='historic'?'舊職員宿舍 E 座位於 Project E 重建地點。':
+        b.legend.length&&now.year===2019?'2019 圖例 '+b.legend.join('、')+'。':'本期圖版或校方文獻可辨。';
+      records.push({b,kind,note,url:fromDirectory?(b.source==='directory'?directory:officialMap):b.observations.find(([year])=>year===now.year)?.[1]||now.source});
+    }
+  }
+  const groups=new Map();
+  for(const r of records){
+    const area=areaName(r.b);
+    if(!groups.has(area))groups.set(area,[]);
+    groups.get(area).push(r);
+  }
+  const namedChanges=records.filter(r=>r.kind!=='名錄補錄');
+  const registry=records.length-namedChanges.length;
+  $('changes-title').textContent=previous?previous.label+' → '+now.label+' · 逐項變化':now.label+' · 基準圖版';
+  $('changes-note').textContent=(previous?namedChanges.length+' 項本期記錄'+(registry?'，另有 '+registry+' 項名錄補錄':'')+'，涉及 '+groups.size+' 個分區。':'收錄 '+eligible.length+' 項可辨記錄。')+' 圖版新增收錄的時間與樓宇建成年份分開記錄。';
+  $('campus-events').replaceChildren(...atlasData.campusNotes.filter(([year])=>year<=now.year&&(!previous||year>previous.year)).map(([year,title,note,url])=>{
+    const card=section('div','','event-group');
+    const heading=section('strong',year+' · '+title);
+    const detail=section('p',note+' ');
+    detail.append(external('來源 ↗',url));
+    card.append(heading,detail);
+    return card;
+  }));
+  $('change-events').replaceChildren(...[...groups].map(([area,rows])=>{
+    const group=document.createElement('details');
+    group.className='event-group';
+    group.open=rows.length<=10;
+    group.append(section('summary',area+' · '+rows.length+' 項'));
+    const list=document.createElement('ul');
+    for(const {b,kind,year,note,url} of rows) {
+      const li=document.createElement('li');
+      const meta=section('p',(year?year+' · ':'')+kind,'event-kind');
+      const body=section('p',note+' ');
+      body.append(external('來源 ↗',url));
+      li.append(meta,state(b)?buildingButton(b):section('strong',labelFor(b)),body);
+      list.append(li);
+    }
+    group.append(list);
+    return group;
+  }));
+  if(!records.length)$('change-events').append(section('p','這一節點未增加可核對的事件或名錄項。','hint'));
+  const poly=eligible.filter(b=>b.figures.length&&!['historic','planned','removed'].includes(state(b)));
+  const polyIds=new Set(poly.map(b=>b.id));
+  const points=eligible.filter(b=>b.point&&!polyIds.has(b.id));
+  const pending=eligible.filter(b=>!b.point);
+  const legend=now.year===2019?' · '+atlasData.legendGroups+' 個圖例編號':'';
+  $('coverage-title').textContent='本期覆蓋'+legend+' · '+poly.length+' 輪廓 · '+points.length+' 位置點 · '+pending.length+' 待定位';
+  $('coverage-list').replaceChildren(...[['位置點／舊址',points],['名錄有記錄，位置待核',pending]].filter(([,rows])=>rows.length).map(([name,rows])=>{
+    const panel=document.createElement('div');
+    panel.append(section('h3',name));
+    const list=document.createElement('ul');
+    for(const b of rows) {
+      const item=document.createElement('li');
+      item.append(buildingButton(b));
+      list.append(item);
+    }
+    panel.append(list);
+    return panel;
+  }));
+}
+function updateHistory() {
+  const snapshot=snapshots[active];
+  $('map-year').textContent=snapshot.label;
+  $('map-caption').textContent=snapshot.caption;
+  $('history-kicker').textContent='節點 '+(active+1)+' / '+snapshots.length;
+  $('history-title').textContent=snapshot.label+' · '+snapshot.caption;
+  $('history-text').textContent=snapshot.text+' 以有據可核的年代為節點。';
+  $('year-control').value=active;
+  $('year-picker').value=active;
+  $('year-control').setAttribute('aria-valuetext',snapshot.label+' '+snapshot.caption);
+  ticks.forEach((tick,i)=>tick.setAttribute('aria-pressed',i===active));
+  $('snapshot-source').textContent='查看本期主要來源 ↗';
+  $('snapshot-source').href=snapshot.source;
+  updatePicker();
+  renderChanges();
+}
+function setYear(year) {
+  if(mode!=='history')return;
+  if(year===0) {
+    const [x,y]=routeAnchors.get('C4');
+    view={...startView,x,y,zoom:1.9};
+  } else if(active===0) {
+    view={...startView};
+  }
+  active=year;
+  updateHistory();
+}
+function stop() {
+  clearInterval(playTimer);
+  playing=false;
+  $('play').textContent='▶ 播放變遷';
+}
+$('year-control').addEventListener('input',event=>{stop();setYear(Number(event.target.value));});
+$('year-picker').addEventListener('change',event=>{stop();setYear(Number(event.target.value));});
+$('play').addEventListener('click',()=>{
+  if(playing){stop();return;}
+  playing=true;
+  $('play').textContent='Ⅱ 暫停播放';
+  if(active===latest)setYear(0);
+  playTimer=setInterval(()=>{
+    if(active<latest)setYear(active+1);
+    if(active===latest)stop();
+  },1550);
+});
+$('building-search').addEventListener('input',updatePicker);
+$('area-picker').addEventListener('change',updatePicker);
+$('building-picker').addEventListener('change',event=>{chosen=event.target.value;updateBuilding();});
+$('focus-building').addEventListener('click',()=>focusBuilding());
+function updateRoute() {
+  const route=routes[routeIndex];
+  const nodes=[...route.nodes,...(route.branches||[]).flat()];
+  const xs=nodes.map(p=>p[0]),ys=nodes.map(p=>p[1]);
+  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  view={...startView,x:(x0+x1)/2,y:(y0+y1)/2,zoom:clamp(.78*Math.min(mapWidth/(x1-x0+220),mapHeight/(y1-y0+220)),1.3,3.5)};
+  $('map-year').textContent='步行';
+  $('map-caption').textContent=(route.group===officialGroup?'校方':'社群')+'路線 · 樓層示意';
+  $('branch-key').hidden=!route.branches?.length;
+  $('route-title').textContent=route.name;
+  $('route-note').textContent=route.detail;
+  $('route-steps').replaceChildren(...route.steps.map(step=>{
+    const li=document.createElement('li');
+    li.textContent=step;
+    return li;
+  }));
+  $('route-source').href=route.url;
+  $('route-source').textContent=route.group===officialGroup?'查看校方路線 ↗':'查看「港中大捷徑」原文 ↗';
+  $('related-routes').replaceChildren(...(route.related||[]).map(group=>{
+    const button=section('button','切換至 '+group);
+    button.type='button';
+    button.addEventListener('click',()=>selectRouteGroup(group));
+    return button;
+  }));
+  redraw();
+}
+function setMode(next) {
+  mode=next;
+  stop();
+  const history=mode==='history';
+  $('history-mode').setAttribute('aria-pressed',history);
+  $('route-mode').setAttribute('aria-pressed',!history);
+  $('history-panel').hidden=!history;
+  $('history-key').hidden=!history;
+  $('timeline').hidden=!history;
+  $('changes').hidden=!history;
+  $('snapshot-source').hidden=!history;
+  $('route-panel').hidden=history;
+  $('route-key').hidden=history;
+  $('map-type').textContent=history?'01 / 校園歷史':'02 / 樓層連通';
+  if(history){view={...startView};updateHistory();}
+  else updateRoute();
+}
+$('history-mode').addEventListener('click',()=>setMode('history'));
+$('route-mode').addEventListener('click',()=>setMode('route'));
+const routeGroups=[...new Set(routes.map(route=>route.group))];
+$('route-group').replaceChildren(...routeGroups.map(group=>new Option(group,group)));
+function selectRouteGroup(group) {
+  $('route-group').value=group;
+  const options=routes.flatMap((route,i)=>route.group===group?[new Option(route.name,i)]:[]);
+  $('route-picker').replaceChildren(...options);
+  routeIndex=Number(options[0].value);
+  if(mode==='route')updateRoute();
+}
+$('route-group').addEventListener('change',event=>selectRouteGroup(event.target.value));
+selectRouteGroup(officialGroup);
+$('route-picker').addEventListener('change',event=>{routeIndex=Number(event.target.value);updateRoute();});
+function controls(action) {
+  switch(action) {
+    case 'left':view.angle-=Math.PI/8;break;
+    case 'right':view.angle+=Math.PI/8;break;
+    case 'in':view.zoom=clamp(view.zoom*1.18,.62,5.2);break;
+    case 'out':view.zoom=clamp(view.zoom/1.18,.62,5.2);break;
+    case 'top':view.tilt=view.tilt>1.4?startView.tilt:Math.PI/2;break;
+    case 'reset':view={...startView};break;
+  }
+  redraw();
+}
+document.querySelectorAll('[data-action]').forEach(b=>b.addEventListener('click',()=>controls(b.dataset.action)));
+canvas.addEventListener('keydown',event=>{
+  const action={ArrowLeft:'left',ArrowRight:'right','+':'in','-':'out',Home:'reset'}[event.key];
+  if(action){event.preventDefault();controls(action);}
+  if(event.key==='ArrowUp'||event.key==='ArrowDown'){
+    event.preventDefault();
+    view.tilt=clamp(view.tilt+(event.key==='ArrowUp'?.12:-.12),.48,Math.PI/2);
+    redraw();
+  }
+});
+canvas.addEventListener('pointerdown',event=>{
+  if(!event.isPrimary||event.button!==0)return;
+  canvas.setPointerCapture(event.pointerId);
+  drag={pointer:event.pointerId,x:event.clientX,y:event.clientY,angle:view.angle,tilt:view.tilt,px:view.x,py:view.y,pan:event.shiftKey,moved:false};
+});
+canvas.addEventListener('pointermove',event=>{
+  if(!drag||event.pointerId!==drag.pointer)return;
+  const dx=event.clientX-drag.x,dy=event.clientY-drag.y;
+  drag.moved ||= Math.hypot(dx,dy)>4;
+  if(!drag.moved)return;
+  canvas.classList.add('grabbing');
+  if(drag.pan){
+    const {scale}=scenePointFactory();
+    const c=Math.cos(view.angle),s=Math.sin(view.angle),dyMap=dy/Math.sin(view.tilt);
+    view.x=clamp(drag.px-(dx*c+dyMap*s)/scale,0,mapWidth);
+    view.y=clamp(drag.py-(-dx*s+dyMap*c)/scale,0,mapHeight);
+  }else{
+    view.angle=drag.angle+dx*.008;
+    view.tilt=clamp(drag.tilt+dy*.006,.48,Math.PI/2);
+  }
+  redraw();
+});
+function pickBuilding(x,y) {
+  for(let i=hitFaces.length-1;i>=0;i--){
+    const item=hitFaces[i];
+    const points=item.points;
+    let inside=false;
+    for(let j=0,k=points.length-1;j<points.length;k=j++){
+      const [ax,ay]=points[j], [bx,by]=points[k];
+      if((ay>y)!==(by>y) && x<(bx-ax)*(y-ay)/(by-ay)+ax)inside=!inside;
+    }
+    if(inside){showBuilding(item.b);return;}
+  }
+}
+canvas.addEventListener('pointerup',event=>{
+  if(!drag||event.pointerId!==drag.pointer)return;
+  if(!drag.moved&&mode==='history'){
+    const rect=canvas.getBoundingClientRect();
+    pickBuilding(event.clientX-rect.left,event.clientY-rect.top);
+  }
+  drag=null;
+  canvas.classList.remove('grabbing');
+});
+canvas.addEventListener('lostpointercapture',()=>{
+  drag=null;
+  canvas.classList.remove('grabbing');
+});
+new ResizeObserver(([entry])=>{
+  width=entry.contentRect.width;
+  height=entry.contentRect.height;
+  const ratio=Math.min(devicePixelRatio||1,2);
+  canvas.width=Math.round(width*ratio);
+  canvas.height=Math.round(height*ratio);
+  ctx.setTransform(ratio,0,0,ratio,0,0);
+  redraw();
+}).observe($('map'));
+updateHistory();
+</script>
+</body>
+</html>
