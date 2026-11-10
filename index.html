@@ -27,6 +27,11 @@ aside{display:flex;flex-direction:column;padding:21px 20px 17px;border-left:1px 
 #route-panel .picker{margin-top:9px}.related-routes{margin-top:10px}.timeline select{width:100%;margin-top:5px;padding:3px 2px;border:1px solid #bdc6b7;border-radius:5px;background:#fffef8;color:var(--green);font-size:12px}.campus-events{margin:0 0 10px}
 .project-credit{margin:5px 0 0;color:var(--green);font-size:13px;font-weight:650}
 .folio{align-items:center;flex-wrap:wrap}.language-picker{display:flex;align-items:center;gap:3px;letter-spacing:normal}.language-picker button{background:transparent;border:1px solid transparent;border-radius:4px;padding:4px 7px;font-size:12px;font-weight:700}.language-picker button[aria-pressed="true"]{background:var(--green);color:white}.language-picker button:hover:not([aria-pressed="true"]){background:#e7e9de}.route-summary,.picker{min-width:0}
+.modes{flex-wrap:wrap}.photo-scene{position:absolute;inset:0;background:#dce5e7}.photo-scene .cesium-widget,.photo-scene .cesium-widget canvas{width:100%;height:100%;display:block;touch-action:none}.photo-scene .cesium-widget canvas{cursor:grab}.photo-scene .cesium-widget-credits{display:none}
+.photo-caption{position:absolute;z-index:1;inset:13px auto auto 13px;margin:0;padding:7px 10px;border:1px solid #b8c6ba;border-radius:6px;background:#f9f8f0f2;color:var(--green);font-size:11px;font-weight:750;pointer-events:none}
+.photo-credit{position:absolute;z-index:1;left:12px;bottom:10px;max-width:calc(100% - 24px);margin:0;padding:5px 8px;border-radius:5px;background:#f9f8f0f2;font-size:11px;color:var(--green)}
+#photo-status{font-weight:700;color:var(--green)}.photo-panel .picker{margin-top:14px}.photo-panel .small-actions{margin:10px 0 12px}
+@media(max-width:430px){.modes button{padding-inline:8px}.photo-credit{font-size:10px}}
 </style>
 </head>
 <body>
@@ -41,13 +46,16 @@ aside{display:flex;flex-direction:column;padding:21px 20px 17px;border-left:1px 
   </div>
   <div class="intro">
     <div><p class="eyebrow">馬料水 · 香港中文大學</p><h1>中大山城圖誌</h1><p>從舊校圖到現況，逐棟追查校舍變遷。</p></div>
-    <nav class="modes" aria-label="地圖模式"><button id="history-mode" aria-pressed="true">校園圖層</button><button id="route-mode" aria-pressed="false">步行捷徑</button></nav>
+    <nav class="modes" aria-label="地圖模式"><button id="history-mode" aria-pressed="true">校園圖層</button><button id="route-mode" aria-pressed="false">步行捷徑</button><button id="photo-mode" aria-pressed="false">航拍實景</button></nav>
   </div>
 </header>
 <main>
   <section class="atlas" aria-label="中大互動校園地圖">
     <div class="map" id="map">
       <canvas id="scene" tabindex="0" aria-label="校園立體模型。左右鍵旋轉，上下鍵調整俯角，可用右側清單選取建築。"></canvas>
+      <div id="photo-scene" class="photo-scene" role="region" aria-label="中大航拍三維模型" hidden></div>
+      <p id="photo-caption" class="photo-caption" hidden>地政總署 · 航拍三維網格</p>
+      <p id="photo-credit" class="photo-credit" hidden><a href="https://portal.csdi.gov.hk/csdi-webpage/metadata/landsd_rcd_1671677054006_62261/html" target="_blank" rel="noopener">三維資料 © 香港特別行政區政府地政總署 · CSDI ↗</a></p>
       <div class="map-top"><span id="map-type" class="eyebrow">01 / 校園歷史</span><strong id="map-year">現況</strong><span id="map-caption" class="eyebrow">官網名錄 · 地理模型</span></div>
       <div class="tools" aria-label="視角控制">
         <button type="button" data-action="left" aria-label="向左旋轉" title="向左旋轉">↶</button><button type="button" data-action="right" aria-label="向右旋轉" title="向右旋轉">↷</button>
@@ -89,6 +97,23 @@ aside{display:flex;flex-direction:column;padding:21px 20px 17px;border-left:1px 
         <a id="route-source" target="_blank" rel="noopener">查看原路線 ↗</a>
         <div id="related-routes" class="small-actions related-routes"></div>
         <p class="fine cut">地圖連線按地標示意，支路、出入口、開放時段及電梯狀態請在出發前核對。</p>
+      </section>
+      <section id="photo-panel" class="photo-panel" hidden>
+        <p class="eyebrow">03 / 航拍實景</p>
+        <h2>從空中看山城</h2>
+        <p class="hint">使用地政總署傾斜航拍生成的三維模型，呈現中大主要校園的樓體、屋頂與山坡。</p>
+        <label class="picker">前往地標<select id="photo-location">
+          <option value="overview">全校概覽</option>
+          <option value="library">大學圖書館與百萬大道</option>
+          <option value="station">大學站與崇基</option>
+          <option value="new-asia">新亞書院與合一亭</option>
+          <option value="united">聯合書院與和聲書院</option>
+          <option value="shaw">逸夫書院與伍宜孫書院</option>
+        </select></label>
+        <div class="small-actions"><button id="photo-reset" type="button">重置視角</button></div>
+        <p class="fine">拖曳旋轉，滾輪或雙指縮放。航拍圖幅為不同時期的資料，邊緣可見接縫。</p>
+        <p id="photo-status" class="fine" role="status" aria-live="polite"></p>
+        <div class="links"><a href="https://3d.map.gov.hk/" target="_blank" rel="noopener">開啟 Open3Dhk ↗</a><a href="https://portal.csdi.gov.hk/csdi-webpage/doc/TNC" target="_blank" rel="noopener">CSDI 使用條款 ↗</a></div>
       </section>
       <div class="snapshot-source"><a id="snapshot-source" target="_blank" rel="noopener"></a></div>
     </aside>
@@ -132,6 +157,7 @@ aside{display:flex;flex-direction:column;padding:21px 20px 17px;border-left:1px 
 <script src="osm-context.js"></script>
 <script src="shortcut-data.js"></script>
 <script src="translations.js"></script>
+<script src="campus-photo.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const languageButtons=[...document.querySelectorAll('[data-language]')];
@@ -351,7 +377,7 @@ function label(p,text,busy,selected=false) {
 }
 function draw(time) {
   frame=0;
-  if(!width||!height)return;
+  if(mode==='photo'||!width||!height)return;
   const {project,depth,scale}=scenePointFactory();
   const elapsed=lastTime?Math.min(time-lastTime,60):17;
   lastTime=time;
@@ -749,25 +775,35 @@ function updateRoute(recenter=true) {
   }));
   redraw();
 }
+const photoView=createCampusPhotoView($,t);
 function setMode(next) {
   mode=next;
   stop();
-  const history=mode==='history';
-  $('history-mode').setAttribute('aria-pressed',history);
-  $('route-mode').setAttribute('aria-pressed',!history);
+  const history=mode==='history',route=mode==='route',photo=mode==='photo';
+  for(const [button,selected] of [['history-mode',history],['route-mode',route],['photo-mode',photo]]){
+    $(button).setAttribute('aria-pressed',selected);
+  }
   $('history-panel').hidden=!history;
   $('history-key').hidden=!history;
   $('timeline').hidden=!history;
   $('changes').hidden=!history;
   $('snapshot-source').hidden=!history;
-  $('route-panel').hidden=history;
-  $('route-key').hidden=history;
+  $('route-panel').hidden=!route;
+  $('route-key').hidden=!route;
+  $('photo-panel').hidden=!photo;
+  $('photo-scene').hidden=!photo;
+  $('photo-caption').hidden=!photo;
+  $('photo-credit').hidden=!photo;
+  canvas.hidden=photo;
+  for(const selector of ['.map-top','.map .tools','.compass','.map-key'])document.querySelector(selector).hidden=photo;
+  photoView.setActive(photo);
   $('map-type').textContent=t(history?'01 / 校園歷史':'02 / 樓層連通');
   if(history){view={...startView};updateHistory();}
-  else updateRoute();
+  else if(route)updateRoute();
 }
 $('history-mode').addEventListener('click',()=>setMode('history'));
 $('route-mode').addEventListener('click',()=>setMode('route'));
+$('photo-mode').addEventListener('click',()=>setMode('photo'));
 const routeGroups=[...new Set(routes.map(route=>route.group))];
 function setRouteOptions(group) {
   $('route-group').value=group;
@@ -865,7 +901,8 @@ function applyLanguage(next) {
   $('map-type').textContent=t(mode==='history'?'01 / 校園歷史':'02 / 樓層連通');
   $('play').textContent=t(playing?'Ⅱ 暫停播放':'▶ 播放變遷');
   if(mode==='history')updateHistory();
-  else updateRoute(false);
+  else if(mode==='route')updateRoute(false);
+  else photoView.localize();
 }
 for(const button of languageButtons)button.addEventListener('click',()=>{
   const next=button.dataset.language;
