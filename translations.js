@@ -1,6 +1,10 @@
 // Locale copy keyed by the original Traditional Chinese text.
 const atlasTranslations = {
   "en": {
+    "書院與分區配色參考中大本科入學資訊日 2026 校園圖。": "College and campus-area colours are based on the CUHK Info Day 2026 campus map.",
+    "地圖配色": "Map colours",
+    "書院與分區": "Colleges and campus areas",
+    "建築變遷": "Building changes",
     "航拍實景": "Aerial 3D",
     "中大航拍三維模型": "CUHK aerial 3D model",
     "地政總署 · 航拍三維網格": "Lands Department · Aerial 3D mesh",
@@ -487,6 +491,10 @@ const atlasTranslations = {
     "上坡到聯合書院。往新亞可接情人徑。": "Go uphill to United College. For New Asia College, take Lovers' Lane.",
   },
   "zh-Hans": {
+    "書院與分區配色參考中大本科入學資訊日 2026 校園圖。": "书院与分区配色参考中大本科入学资讯日 2026 校园图。",
+    "地圖配色": "地图配色",
+    "書院與分區": "书院与分区",
+    "建築變遷": "建筑变迁",
     "航拍實景": "航拍实景",
     "中大航拍三維模型": "中大航拍三维模型",
     "地政總署 · 航拍三維網格": "地政总署 · 航拍三维网格",
